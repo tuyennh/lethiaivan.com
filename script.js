@@ -209,7 +209,22 @@
   }
   window.addEventListener('resize', function () { layoutTrack(); if (!reduce) updateMethod(); });
 
-  /* ---------- culture tiles: play the illustration once when scrolled into view (touch screens) ---------- */
+  /* ---------- culture timeline: draw line, light years in order ---------- */
+  var ctl = $('#ctl');
+  $$('.ctl__year', ctl).forEach(function (y, i) { y.style.setProperty('--i', i); });
+  if (!reduce && 'IntersectionObserver' in window) {
+    var cr0 = ctl.getBoundingClientRect();
+    if (cr0.top > window.innerHeight) {
+      ctl.classList.add('js');
+      var co = new IntersectionObserver(function (en) {
+        if (!en[0].isIntersecting) return;
+        ctl.classList.add('run'); co.disconnect();
+      }, { threshold: 0.25 });
+      co.observe(ctl);
+    } else ctl.classList.add('run');
+  } else ctl.classList.add('run');
+
+  /* ---------- tiles: play the illustration once when scrolled into view (touch screens) ---------- */
   if (!reduce && 'IntersectionObserver' in window && !window.matchMedia('(hover: hover)').matches) {
     var to = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
