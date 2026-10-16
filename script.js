@@ -219,6 +219,50 @@
     });
   });
 
+  /* ---------- dock + back to top ---------- */
+  var dock = $('#dock'), totop = $('#totop'), contactSec = $('#lien-he');
+  function onScroll2() {
+    var y = window.scrollY, past = y > window.innerHeight * 0.8;
+    var cr = contactSec.getBoundingClientRect();
+    var atContact = cr.top < window.innerHeight && cr.bottom > 0;
+    dock.classList.toggle('show', past && !atContact);
+    totop.classList.toggle('show', past);
+  }
+  window.addEventListener('scroll', onScroll2, { passive: true });
+  onScroll2();
+  totop.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); });
+
+  /* ---------- brief form -> prefilled email ---------- */
+  var form = $('#brief'), note = $('#briefNote');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = $('#f-name'), contact = $('#f-contact'), bad = null;
+    [name, contact].forEach(function (f) {
+      var ok = f.value.trim().length > 1;
+      f.classList.toggle('invalid', !ok);
+      if (!ok && !bad) bad = f;
+    });
+    if (bad) { bad.focus(); note.textContent = 'Vui lòng điền họ tên và số điện thoại hoặc email để tôi liên hệ lại.'; return; }
+    var needs = $$('input[name="need"]:checked', form).map(function (c) { return c.value; });
+    var lines = [
+      'Họ và tên: ' + name.value.trim(),
+      'Liên hệ: ' + contact.value.trim(),
+      'Doanh nghiệp: ' + ($('#f-company').value.trim() || '—'),
+      'Quy mô: ' + ($('#f-size').value || '—'),
+      'Nhu cầu: ' + (needs.join('; ') || '—'),
+      '',
+      $('#f-msg').value.trim()
+    ];
+    var subject = 'Đặt lịch trao đổi tư vấn nhân sự – ' + name.value.trim();
+    var href = 'mailto:aivan4122014@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
+    note.textContent = 'Nếu ứng dụng email không tự mở, bạn có thể gọi hoặc nhắn Zalo số 0902 819 281.';
+    showToast('Đang mở ứng dụng email…');
+    window.location.href = href;
+  });
+  $$('#f-name, #f-contact').forEach(function (f) {
+    f.addEventListener('input', function () { if (f.value.trim().length > 1) f.classList.remove('invalid'); });
+  });
+
   $('#year').textContent = new Date().getFullYear();
 
   /* ---------- hero canvas: drifting org-network ---------- */
