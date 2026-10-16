@@ -327,7 +327,7 @@
   var nodes = [], W = 0, H = 0, dpr = Math.min(window.devicePixelRatio || 1, 2), mouse = { x: -999, y: -999 };
   function colors() {
     var cs = getComputedStyle(root);
-    return { line: cs.getPropertyValue('--pine').trim(), dot: cs.getPropertyValue('--brass').trim() };
+    return { line: cs.getPropertyValue('--navy').trim(), dot: cs.getPropertyValue('--gold').trim() };
   }
   var col = colors();
   new MutationObserver(function () { col = colors(); }).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
