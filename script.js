@@ -172,15 +172,55 @@
   setTab(0);
   if (!reduce) auto = setInterval(function () { cur = (cur + 1) % 3; setTab(cur); }, 4500);
 
-  /* ---------- steps light up in sequence ---------- */
-  var steps = $$('.step');
-  if ('IntersectionObserver' in window && !reduce) {
-    var so = new IntersectionObserver(function (entries) {
-      if (!entries[0].isIntersecting) return;
-      steps.forEach(function (s, i) { setTimeout(function () { s.classList.add('lit'); setTimeout(function () { s.classList.remove('lit'); }, 900); }, 400 + i * 450); });
-      so.disconnect();
-    }, { threshold: 0.4 });
-    so.observe($('#steps'));
+  /* ---------- method: scroll-driven track that lights each step ---------- */
+  var method = $('#method'), track = $('.method__track', method);
+  var stepEls = $$('.step', method), stepNodes = stepEls.map(function (s) { return $('.step__n', s); });
+  var vertical = window.matchMedia('(max-width: 1080px)');
+  var marks = [];
+  function layoutTrack() {
+    var mr = method.getBoundingClientRect();
+    var c = stepNodes.map(function (n) {
+      var r = n.getBoundingClientRect();
+      return vertical.matches ? r.top + r.height / 2 - mr.top : r.left + r.width / 2 - mr.left;
+    });
+    var start = c[0], end = c[c.length - 1], len = Math.max(1, end - start);
+    track.style.cssText = vertical.matches
+      ? 'top:' + start + 'px;height:' + len + 'px;bottom:auto'
+      : 'left:' + start + 'px;width:' + len + 'px;right:auto';
+    marks = c.map(function (v) { return (v - start) / len; });
+  }
+  function updateMethod() {
+    var vh = window.innerHeight, r = method.getBoundingClientRect(), p;
+    if (vertical.matches) p = (vh * 0.62 - r.top) / Math.max(1, r.height - 60);
+    else p = (vh * 0.85 - r.top) / (vh * 0.5);
+    p = Math.min(1, Math.max(0, p));
+    method.style.setProperty('--p', p.toFixed(4));
+    stepEls.forEach(function (s, i) { s.classList.toggle('on', p >= marks[i] - 0.001 && p > 0); });
+  }
+  layoutTrack();
+  window.addEventListener('load', function () { layoutTrack(); if (!reduce) updateMethod(); });
+  if (reduce) {
+    method.style.setProperty('--p', 1);
+    stepEls.forEach(function (s) { s.classList.add('on'); });
+  } else {
+    method.classList.add('js');
+    updateMethod();
+    window.addEventListener('scroll', function () { requestAnimationFrame(updateMethod); }, { passive: true });
+  }
+  window.addEventListener('resize', function () { layoutTrack(); if (!reduce) updateMethod(); });
+
+  /* ---------- culture tiles: play the illustration once when scrolled into view (touch screens) ---------- */
+  if (!reduce && 'IntersectionObserver' in window && !window.matchMedia('(hover: hover)').matches) {
+    var to = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        var t = e.target;
+        t.classList.add('play');
+        setTimeout(function () { t.classList.remove('play'); }, 3200);
+        to.unobserve(t);
+      });
+    }, { threshold: 0.6 });
+    $$('.tile').forEach(function (t) { to.observe(t); });
   }
 
   /* ---------- certificate tilt + lightbox ---------- */
