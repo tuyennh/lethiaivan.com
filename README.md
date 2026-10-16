@@ -10,3 +10,5 @@ Trang tĩnh thuần HTML/CSS/JS, không cần build:
 - `assets/` – ảnh chân dung, chứng nhận, ảnh chia sẻ mạng xã hội
 
 Xem thử trên máy: `python3 -m http.server 8000` rồi mở http://localhost:8000
+
+Đưa lên server EC2: xem [deploy/HUONG-DAN-DEPLOY.md](deploy/HUONG-DAN-DEPLOY.md). Merge vào `main` sẽ tự deploy qua GitHub Actions.

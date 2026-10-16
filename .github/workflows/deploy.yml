@@ -1,0 +1,45 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure SSH
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$EC2_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
+
+      - name: Upload site
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+        run: |
+          rsync -avz --delete \
+            --exclude '.git' --exclude '.github' --exclude 'deploy' --exclude 'README.md' \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes" \
+            ./ "$EC2_USER@$EC2_HOST:/var/www/lethiaivan.com/"
+
+      - name: Smoke test
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: lethiaivan.com' "http://$EC2_HOST/")
+          echo "HTTP status: $code"
+          [ "$code" = "200" ] || [ "$code" = "301" ]
