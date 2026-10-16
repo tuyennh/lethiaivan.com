@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://lethiaivan.com/sitemap.xml
+Sitemap: https://aivanhr.com/sitemap.xml

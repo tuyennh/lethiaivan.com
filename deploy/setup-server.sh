@@ -3,7 +3,7 @@
 # Usage on the server:  sudo bash setup-server.sh you@example.com
 set -euo pipefail
 
-DOMAIN="lethiaivan.com"
+DOMAIN="aivanhr.com"
 WEBROOT="/var/www/${DOMAIN}"
 EMAIL="${1:?Pass an email for SSL certificate notices, e.g. sudo bash setup-server.sh you@example.com}"
 DEPLOY_USER="${SUDO_USER:-ubuntu}"

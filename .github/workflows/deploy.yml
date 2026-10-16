@@ -49,13 +49,13 @@ jobs:
           rsync -avz --delete \
             --exclude '.git' --exclude '.github' --exclude 'deploy' --exclude 'README.md' \
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes" \
-            ./ "$EC2_USER@$EC2_HOST:/var/www/lethiaivan.com/"
+            ./ "$EC2_USER@$EC2_HOST:/var/www/aivanhr.com/"
 
       - name: Smoke test
         if: steps.cfg.outputs.ready == 'true'
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
         run: |
-          code=$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: lethiaivan.com' "http://$EC2_HOST/")
+          code=$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: aivanhr.com' "http://$EC2_HOST/")
           echo "HTTP status: $code"
           [ "$code" = "200" ] || [ "$code" = "301" ]

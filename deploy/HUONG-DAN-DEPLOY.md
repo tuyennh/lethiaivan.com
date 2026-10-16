@@ -18,7 +18,7 @@ Tại nơi mua tên miền, tạo 2 bản ghi:
 | A | @ | Elastic IP của EC2 |
 | A | www | Elastic IP của EC2 |
 
-Đợi 5–30 phút. Kiểm tra bằng lệnh `ping lethiaivan.com`: thấy đúng IP là được.
+Đợi 5–30 phút. Kiểm tra bằng lệnh `ping aivanhr.com`: thấy đúng IP là được.
 
 ## Bước 3. Cài server (làm một lần)
 Trên máy của bạn:
@@ -27,7 +27,7 @@ scp -i key.pem -r deploy ubuntu@<ELASTIC_IP>:~/
 ssh -i key.pem ubuntu@<ELASTIC_IP>
 sudo bash deploy/setup-server.sh email-cua-ban@gmail.com
 ```
-Script sẽ cài nginx, tạo thư mục `/var/www/lethiaivan.com`, xin chứng chỉ HTTPS miễn phí (tự gia hạn) và chuyển `www` về tên miền chính.
+Script sẽ cài nginx, tạo thư mục `/var/www/aivanhr.com`, xin chứng chỉ HTTPS miễn phí (tự gia hạn) và chuyển `www` về tên miền chính.
 
 ## Bước 4. Tạo SSH key riêng cho GitHub
 Vẫn trên server:
@@ -42,7 +42,7 @@ Vào repo → **Settings → Secrets and variables → Actions → New repositor
 
 | Tên | Giá trị |
 |-----|---------|
-| `EC2_HOST` | Elastic IP (hoặc `lethiaivan.com`) |
+| `EC2_HOST` | Elastic IP (hoặc `aivanhr.com`) |
 | `EC2_USER` | `ubuntu` |
 | `EC2_SSH_KEY` | Nội dung private key ở bước 4 (gồm cả dòng BEGIN/END) |
 
@@ -52,9 +52,9 @@ Workflow dùng environment `production`. GitHub tự tạo environment này ở 
 - Merge pull request vào `main`, hoặc
 - Vào tab **Actions → Deploy to EC2 → Run workflow**.
 
-Mở https://lethiaivan.com để kiểm tra.
+Mở https://aivanhr.com để kiểm tra.
 
 ## Lưu ý bảo mật
 - **Không** gửi file `.pem` hay private key qua chat hoặc email. Chỉ dán vào GitHub Secrets.
 - GitHub Actions chạy từ nhiều IP khác nhau, nên cổng 22 phải mở rộng. Để an toàn hơn: tắt đăng nhập bằng mật khẩu (Ubuntu trên EC2 đã tắt sẵn) và chỉ dùng SSH key.
-- Muốn thêm `aivanhr.com` chuyển về `lethiaivan.com`: trỏ DNS của tên miền đó về cùng IP rồi báo lại để thêm cấu hình chuyển hướng.
+- Nếu có thêm tên miền phụ (ví dụ `lethiaivan.com`) muốn chuyển về `aivanhr.com`: trỏ DNS của tên miền đó về cùng IP rồi báo lại để thêm cấu hình chuyển hướng 301.
