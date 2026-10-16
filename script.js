@@ -211,7 +211,8 @@
 
   /* ---------- culture timeline: draw line, light years in order ---------- */
   var ctl = $('#ctl');
-  $$('.ctl__year', ctl).forEach(function (y, i) { y.style.setProperty('--i', i); });
+  $$('.ctl__node', ctl).forEach(function (y, i) { y.style.setProperty('--i', i); });
+  $$('.ctl__ev', ctl).forEach(function (y, i) { y.style.setProperty('--i', i); });
   if (!reduce && 'IntersectionObserver' in window) {
     var cr0 = ctl.getBoundingClientRect();
     if (cr0.top > window.innerHeight) {
