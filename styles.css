@@ -82,6 +82,16 @@ a { color: inherit; }
 :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
 [hidden] { display: none !important; }
 
+/* justify body copy so both edges of each block line up */
+main p:not(.eyebrow),
+main blockquote,
+.focus__list li,
+.fit li {
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
+}
+
 .wrap {
   max-width: var(--maxw);
   margin-inline: auto;
