@@ -288,32 +288,71 @@
   onScroll2();
   totop.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); });
 
-  /* ---------- brief form -> prefilled email ---------- */
-  var form = $('#brief'), note = $('#briefNote');
+  /* ---------- brief form -> Web3Forms (delivers to aivan4122014@gmail.com) ---------- */
+  var WEB3FORMS_KEY = '8d7f89fb-29a7-4a71-9fa1-b8d8f69d0f15';
+  var form = $('#brief'), note = $('#briefNote'), submitBtn = $('#briefSubmit');
+  var sending = false;
+  function setNote(msg, state) {
+    note.textContent = msg;
+    note.classList.toggle('is-ok', state === 'ok');
+    note.classList.toggle('is-err', state === 'err');
+  }
   form.addEventListener('submit', function (e) {
     e.preventDefault();
+    if (sending) return;
     var name = $('#f-name'), contact = $('#f-contact'), bad = null;
     [name, contact].forEach(function (f) {
       var ok = f.value.trim().length > 1;
       f.classList.toggle('invalid', !ok);
       if (!ok && !bad) bad = f;
     });
-    if (bad) { bad.focus(); note.textContent = 'Vui lòng điền họ tên và số điện thoại hoặc email để tôi liên hệ lại.'; return; }
+    if (bad) { bad.focus(); setNote('Vui lòng điền họ tên và số điện thoại hoặc email để tôi liên hệ lại.', 'err'); return; }
+
     var needs = $$('input[name="need"]:checked', form).map(function (c) { return c.value; });
-    var lines = [
-      'Họ và tên: ' + name.value.trim(),
-      'Liên hệ: ' + contact.value.trim(),
-      'Doanh nghiệp: ' + ($('#f-company').value.trim() || '—'),
-      'Quy mô: ' + ($('#f-size').value || '—'),
-      'Nhu cầu: ' + (needs.join('; ') || '—'),
-      '',
-      $('#f-msg').value.trim()
-    ];
-    var subject = 'Đặt lịch trao đổi tư vấn nhân sự – ' + name.value.trim();
-    var href = 'mailto:aivan4122014@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
-    note.textContent = 'Nếu ứng dụng email không tự mở, bạn có thể gọi hoặc nhắn Zalo số 0902 819 281.';
-    showToast('Đang mở ứng dụng email…');
-    window.location.href = href;
+    var contactVal = contact.value.trim();
+    var payload = {
+      access_key: WEB3FORMS_KEY,
+      subject: 'Đặt lịch trao đổi tư vấn – ' + name.value.trim(),
+      from_name: 'aivanhr.com',
+      botcheck: $('#f-bot').checked,
+      'Họ và tên': name.value.trim(),
+      'Liên hệ': contactVal,
+      'Doanh nghiệp': $('#f-company').value.trim() || '—',
+      'Quy mô nhân sự': $('#f-size').value || '—',
+      'Nhu cầu': needs.join('; ') || '—',
+      'Mô tả': $('#f-msg').value.trim() || '—'
+    };
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactVal)) payload.email = contactVal; // lets the reply go straight to the sender
+
+    sending = true;
+    submitBtn.disabled = true;
+    submitBtn.classList.add('is-loading');
+    setNote('Đang gửi…');
+    var ctrl = 'AbortController' in window ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 15000);
+
+    fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(payload),
+      signal: ctrl ? ctrl.signal : undefined
+    })
+      .then(function (r) { return r.json().catch(function () { return { success: false }; }); })
+      .then(function (res) {
+        if (!res || !res.success) throw new Error((res && res.message) || 'send failed');
+        form.reset();
+        setNote('Đã gửi yêu cầu. Cảm ơn bạn, tôi sẽ liên hệ lại sớm.', 'ok');
+        showToast('Đã gửi yêu cầu');
+      })
+      .catch(function () {
+        setNote('Chưa gửi được yêu cầu. Vui lòng thử lại, hoặc gọi / nhắn Zalo số 0902 819 281.', 'err');
+      })
+      .then(function () {
+        clearTimeout(timer);
+        sending = false;
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('is-loading');
+      });
   });
   $$('#f-name, #f-contact').forEach(function (f) {
     f.addEventListener('input', function () { if (f.value.trim().length > 1) f.classList.remove('invalid'); });

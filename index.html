@@ -698,6 +698,7 @@
 
     <div class="wrap">
       <form class="brief reveal" id="brief" novalidate>
+        <input type="checkbox" name="botcheck" id="f-bot" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
         <div class="brief__head">
           <h3>Đặt lịch trao đổi ban đầu</h3>
           <p>Cho biết đôi nét về doanh nghiệp, tôi sẽ liên hệ lại để trao đổi nhu cầu cụ thể.</p>
@@ -726,8 +727,8 @@
           <label class="field field--wide"><span>Mô tả ngắn</span><textarea id="f-msg" name="msg" rows="3" placeholder="Ví dụ: công ty đang mở thêm 3 chi nhánh, cần chuẩn hóa phân quyền và cơ chế lương cho bộ phận bán hàng."></textarea></label>
         </div>
         <div class="brief__foot">
-          <p class="brief__note" id="briefNote">Bấm gửi sẽ mở ứng dụng email với nội dung đã điền sẵn.</p>
-          <button class="btn btn--accent" type="submit">Gửi yêu cầu
+          <p class="brief__note" id="briefNote" role="status" aria-live="polite">Thông tin được gửi thẳng đến email của tôi. Tôi sẽ liên hệ lại qua số điện thoại hoặc email bạn để lại.</p>
+          <button class="btn btn--accent" type="submit" id="briefSubmit">Gửi yêu cầu
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </button>
         </div>
